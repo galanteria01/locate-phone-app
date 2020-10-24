@@ -19,12 +19,11 @@ class MyTracker : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
-            R.id.addContact->{
-                val intent = Intent(this,MyTracker::class.java)
-                startActivity(intent)
+            R.id.addContact ->{
+                //TODO:Add New Activity
             }
             R.id.finish ->{
-                //TODO: ask for help from friend
+                finish()
             }
             else ->{
                 return super.onOptionsItemSelected(item)

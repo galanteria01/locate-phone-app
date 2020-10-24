@@ -9,8 +9,8 @@
         android:roundIcon="@drawable/dmap"
         android:supportsRtl="true"
         android:theme="@style/Theme.LocatePhone">
-        <activity android:name=".MyTracker"></activity>
-        <activity android:name=".LoginPage" />
+        <activity android:name=".MyTracker" android:label="Contact"/>
+        <activity android:name=".LoginPage"  android:label="Login"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
