@@ -1,13 +1,17 @@
 package com.example.locatephone
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.view.*
-import android.view.View.inflate
 import android.widget.BaseAdapter
-import androidx.core.content.res.ColorStateListInflaterCompat.inflate
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_my_tracker.*
 import kotlinx.android.synthetic.main.contact_ticket.view.*
 
@@ -38,7 +42,7 @@ class MyTracker : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.addContact ->{
-                //TODO:Add New Activity
+                checkPermissions()
             }
             R.id.finish ->{
                 finish()
@@ -49,6 +53,68 @@ class MyTracker : AppCompatActivity() {
 
         }
         return true
+    }
+    val CONTACT_CODE = 123
+    fun checkPermissions(){
+        if(Build.VERSION.SDK_INT>=23){
+            if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.READ_CONTACTS)!=
+                    PackageManager.PERMISSION_GRANTED){
+                requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS),CONTACT_CODE)
+            }
+        }else{
+            pickContact()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        when(requestCode){
+            CONTACT_CODE -> {
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    pickContact()
+                }else{
+                    Toast.makeText(this,"Permission denied",Toast.LENGTH_SHORT).show()
+                }
+            }
+            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+
+    }
+    val PICK_CODE = 111
+    fun pickContact(){
+        var intent = Intent(Intent.ACTION_PICK,ContactsContract.Contacts.CONTENT_URI)
+        startActivityForResult(intent,PICK_CODE)
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when(requestCode){
+            PICK_CODE ->{
+                if(resultCode == Activity.RESULT_OK){
+                    var contact = data!!.data
+                    var c = contentResolver.query(contact!!,null,null,null,null)
+
+                    if(c!!.moveToFirst()){
+                        var id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID))
+                        var hasPhone = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER))
+                        if(hasPhone.equals("1")){
+                            val phone = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID+"="+id,null,null)
+
+                            phone!!.moveToFirst()
+                            var phoneNumber = phone!!.getString(c.getColumnIndex("data1"))
+                            val name = phone!!.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+                            listOfContact.add(UserContact(name.toString(),phoneNumber.toString()))
+                        }
+
+                    }
+                }
+
+            }
+            else -> {
+                super.onActivityResult(requestCode, resultCode, data)
+            }
+        }
+
     }
 
     class contactAdapter: BaseAdapter {
