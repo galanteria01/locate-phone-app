@@ -122,7 +122,14 @@ class MyTracker : AppCompatActivity() {
                             phone!!.moveToFirst()
                             var phoneNumber = phone!!.getString(c.getColumnIndex("data1"))
                             val name = phone!!.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-                            listOfContact.add(UserContact(name.toString(),phoneNumber.toString()))
+                            UserData.formatPhoneNumber(phoneNumber)
+                            listOfContact.add(UserContact(name,phoneNumber))
+                            refreshData()
+                            userData!!.saveContactInfo()
+
+                            val mDatabase = FirebaseDatabase.getInstance().reference
+                            var userData = UserData(applicationContext)
+                            mDatabase.child("Users").child(phoneNumber).child("Finders").child(userData.loadPhoneNumber()).setValue(true)
                         }
 
                     }

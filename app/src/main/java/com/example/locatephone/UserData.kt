@@ -29,6 +29,18 @@ class UserData {
         return phoneNumber.toString()
     }
 
+    fun isFirstTimeLoad(){
+
+        val phoneNumber =sRef!!.getString("phoneNumber","empty")
+        if ( phoneNumber.equals("empty")){
+            val intent =Intent(context,LoginPage::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context!!.startActivity(intent)
+        }
+
+
+    }
+
     fun saveContactInfo() {
         var listOfTrackers=""
         for ((key,value) in myTrackers){
