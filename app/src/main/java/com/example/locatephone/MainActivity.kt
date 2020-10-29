@@ -181,8 +181,7 @@ class MainActivity : AppCompatActivity() {
                 var myView = LayoutInflater.from(context).inflate(R.layout.no_user, null)
                 return myView
             }else {
-                val inflator = this.context!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                val myView = inflator.inflate(R.layout.contact_ticket, null)
+                val myView = LayoutInflater.from(context).inflate(R.layout.contact_ticket,null)
                 myView.tvName.text = userContact.name
                 myView.tvNumber.text = userContact.pNumber
 
