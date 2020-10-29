@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "689903342370",
+    "firebase_url": "https://locate-phone-227b7.firebaseio.com",
+    "project_id": "locate-phone-227b7",
+    "storage_bucket": "locate-phone-227b7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689903342370:android:0f795656ae153aafd10b7b",
+        "android_client_info": {
+          "package_name": "com.example.locatephone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "689903342370-qaet7ibj4i17kina97j42o6gtkbhqp4j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQc8JnGcqFaBWszqL7OHYdhrDxVTXxiu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "689903342370-qaet7ibj4i17kina97j42o6gtkbhqp4j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,6 @@
 package com.example.locatephone
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -8,22 +9,40 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.*
+import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_my_tracker.*
 import kotlinx.android.synthetic.main.contact_ticket.view.*
 
 class MyTracker : AppCompatActivity() {
     var adapter:contactAdapter?=null
     var listOfContact = ArrayList<UserContact>()
+    var userData:UserData?=null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_tracker)
         dummyData()
         adapter = contactAdapter(this,listOfContact)
         lvContacts.adapter = adapter
+        lvContacts.onItemClickListener= AdapterView.OnItemClickListener{
+                parent,view,position,id ->
+            val userInfo =listOfContact[position]
+            UserData.myTrackers.remove(userInfo.pNumber)
+            refreshData()
+
+            //save to shared ref
+            userData!!.saveContactInfo()
+
+            // remove to Realtime database
+            val mDatabase = FirebaseDatabase.getInstance().reference
+            val userData= UserData(applicationContext)
+            mDatabase.child("Users").child(userInfo.pNumber!!).child("Finders").child(userData.loadPhoneNumber()).removeValue()
+
+        }
     }
 
     fun dummyData(){
@@ -116,6 +135,14 @@ class MyTracker : AppCompatActivity() {
         }
 
     }
+    fun refreshData(){
+        listOfContact.clear()
+        for ((key,value) in UserData.myTrackers){
+            listOfContact.add(UserContact(value,key))
+        }
+
+        adapter!!.notifyDataSetChanged()
+    }
 
     class contactAdapter: BaseAdapter {
         var context:Context?=null
@@ -138,6 +165,7 @@ class MyTracker : AppCompatActivity() {
             return position.toLong()
         }
 
+        @SuppressLint("ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             var user = this.listOfContacts[position]
             var inflater = this.context!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
