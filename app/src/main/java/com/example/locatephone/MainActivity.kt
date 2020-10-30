@@ -3,6 +3,9 @@ package com.example.locatephone
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -34,8 +37,8 @@ class MainActivity : AppCompatActivity() {
         adapter = ContactAdapter(this,listOfContact)
         lvContacts.adapter = adapter
         lvContacts.onItemClickListener= AdapterView.OnItemClickListener{
-                parent,view,postion,id ->
-            val userInfo =listOfContact[postion]
+                parent,view,position,id ->
+            val userInfo =listOfContact[position]
             // get datatime
             val df = SimpleDateFormat("yyyy/MMM/dd HH:MM:ss")
             val date = Date()
@@ -85,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         if(Build.VERSION.SDK_INT>=23){
             if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.READ_CONTACTS)!=
                     PackageManager.PERMISSION_GRANTED){
-                requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS),CONTACT_CODE)
+                requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS,android.Manifest.permission.ACCESS_FINE_LOCATION),CONTACT_CODE)
             }
         }else{
             loadContact()
@@ -99,7 +102,14 @@ class MainActivity : AppCompatActivity() {
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     loadContact()
                 }else{
-                    Toast.makeText(this,"Permission denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"Contacts permission denied", Toast.LENGTH_SHORT).show()
+                }
+
+                if(grantResults[1] == PackageManager.PERMISSION_GRANTED){
+
+                }else{
+                    Toast.makeText(this,"Location permission denied", Toast.LENGTH_SHORT).show()
+
                 }
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -178,7 +188,7 @@ class MainActivity : AppCompatActivity() {
             val userContact = listOfContact[p0]
 
             if (userContact.name.equals("NO_USERS")){
-                var myView = LayoutInflater.from(context).inflate(R.layout.no_user, null)
+                val myView = LayoutInflater.from(context).inflate(R.layout.no_user, null)
                 return myView
             }else {
                 val myView = LayoutInflater.from(context).inflate(R.layout.contact_ticket,null)
@@ -201,6 +211,27 @@ class MainActivity : AppCompatActivity() {
         override fun getCount(): Int {
 
             return listOfContact.size
+        }
+
+    }
+
+    fun getUserLocation(){
+        var myLocationListener = MyLocationListener()
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,3,3f,myLocationListener)
+
+    }
+
+    var myLocation:Location?=null
+    inner class MyLocationListener: LocationListener {
+        constructor():super(){
+            myLocation = Location("me")
+            myLocation!!.longitude = 0.0
+            myLocation!!.latitude = 0.0
+        }
+        override fun onLocationChanged(location: Location) {
+            myLocation = location
+
         }
 
     }
