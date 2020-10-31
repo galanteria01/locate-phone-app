@@ -1,5 +1,6 @@
 package com.example.locatephone
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,6 +17,7 @@ import android.widget.BaseAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_login_page.*
 import kotlinx.android.synthetic.main.activity_my_tracker.*
 import kotlinx.android.synthetic.main.contact_ticket.view.*
 import java.text.SimpleDateFormat
@@ -48,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
+    var isAccessLocation = false
     override fun onResume() {
         super.onResume()
 
@@ -55,9 +58,12 @@ class MainActivity : AppCompatActivity() {
         if (userData.loadPhoneNumber()=="empty"){
             return
         }
+        if(isAccessLocation) return
         refreshUsers()
 
-        checkPermissions()
+
+        checkContactPermissions()
+        checkLocationPermissions()
 
     }
 
@@ -84,15 +90,16 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    fun checkPermissions(){
+    fun checkContactPermissions(){
         if(Build.VERSION.SDK_INT>=23){
             if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.READ_CONTACTS)!=
                     PackageManager.PERMISSION_GRANTED){
-                requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS,android.Manifest.permission.ACCESS_FINE_LOCATION),CONTACT_CODE)
+                requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS),CONTACT_CODE)
+                return
             }
-        }else{
-            loadContact()
         }
+        loadContact()
+
     }
     val CONTACT_CODE = 123
 
@@ -101,15 +108,17 @@ class MainActivity : AppCompatActivity() {
             CONTACT_CODE -> {
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     loadContact()
-                }else{
+                }
+                else{
                     Toast.makeText(this,"Contacts permission denied", Toast.LENGTH_SHORT).show()
                 }
-
-                if(grantResults[1] == PackageManager.PERMISSION_GRANTED){
-
-                }else{
-                    Toast.makeText(this,"Location permission denied", Toast.LENGTH_SHORT).show()
-
+            }
+            LOCATION_CODE -> {
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    getUserLocation()
+                }
+                else{
+                    Toast.makeText(this,"Contacts permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -214,11 +223,41 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+    fun checkLocationPermissions(){
+        if(Build.VERSION.SDK_INT>=23){
+            if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION)!=
+                    PackageManager.PERMISSION_GRANTED){
+                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),LOCATION_CODE)
+                return
+            }
+        }
+        loadContact()
 
+    }
+    val LOCATION_CODE = 234
+
+    @SuppressLint("MissingPermission")
     fun getUserLocation(){
         var myLocationListener = MyLocationListener()
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,3,3f,myLocationListener)
+
+        //Listen to request
+        var userData = UserData(this)
+        val phoneNumber = userData.loadPhoneNumber()
+        databaseRef!!.child("Users").child(phoneNumber).child("request").addValueEventListener(object :ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(myLocation == null){
+                    return
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+
 
     }
 
@@ -228,6 +267,7 @@ class MainActivity : AppCompatActivity() {
             myLocation = Location("me")
             myLocation!!.longitude = 0.0
             myLocation!!.latitude = 0.0
+            isAccessLocation = true
         }
         override fun onLocationChanged(location: Location) {
             myLocation = location
