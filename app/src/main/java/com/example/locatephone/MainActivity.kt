@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     var databaseRef:DatabaseReference?=null
     var adapter: ContactAdapter?=null
     var listOfContact=ArrayList<UserContact>()
+    @SuppressLint("SimpleDateFormat")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -47,6 +48,10 @@ class MainActivity : AppCompatActivity() {
             // save to database
             databaseRef!!.child("Users").child(userInfo.pNumber!!).child("request").setValue(df.format(date).toString())
 
+            val intent = Intent(applicationContext,MapsActivity::class.java)
+            intent.putExtra("phoneNumber",userInfo.pNumber)
+
+            startActivity(intent)
 
         }
     }
@@ -260,7 +265,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
