@@ -85,7 +85,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             R.id.menuHelp ->{
-                //TODO: ask for help from friend
             }
             else ->{
                 return super.onOptionsItemSelected(item)
