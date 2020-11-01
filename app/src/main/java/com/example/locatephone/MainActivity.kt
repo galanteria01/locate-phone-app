@@ -247,9 +247,16 @@ class MainActivity : AppCompatActivity() {
         val phoneNumber = userData.loadPhoneNumber()
         databaseRef!!.child("Users").child(phoneNumber).child("request").addValueEventListener(object :ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
+                val df = SimpleDateFormat("yyyy/MMM/dd HH:MM:ss")
+                val date = Date()
                 if(myLocation == null){
                     return
                 }
+                databaseRef!!.child("Users").child(phoneNumber).child("location").child("latitude").setValue(myLocation!!.latitude)
+                databaseRef!!.child("Users").child(phoneNumber).child("location").child("longitude").setValue(myLocation!!.longitude)
+                databaseRef!!.child("Users").child(phoneNumber).child("location").child("lastOnline").setValue(df.format(date).toString())
+
+
             }
 
             override fun onCancelled(error: DatabaseError) {
