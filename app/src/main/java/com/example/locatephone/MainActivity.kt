@@ -55,7 +55,6 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-    var isAccessLocation = false
     override fun onResume() {
         super.onResume()
 
@@ -63,9 +62,9 @@ class MainActivity : AppCompatActivity() {
         if (userData.loadPhoneNumber()=="empty"){
             return
         }
-        if(isAccessLocation) return
         refreshUsers()
 
+        if(MyService.isServiceRunning) return
 
         checkContactPermissions()
         checkLocationPermissions()
@@ -242,31 +241,10 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     fun getUserLocation(){
-        var myLocationListener = MyLocationListener()
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,3,3f,myLocationListener)
-
-        //Listen to request
-        var userData = UserData(this)
-        val phoneNumber = userData.loadPhoneNumber()
-        databaseRef!!.child("Users").child(phoneNumber).child("request").addValueEventListener(object :ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val df = SimpleDateFormat("yyyy/MMM/dd HH:MM:ss")
-                val date = Date()
-                if(myLocation == null){
-                    return
-                }
-                databaseRef!!.child("Users").child(phoneNumber).child("location").child("latitude").setValue(myLocation!!.latitude)
-                databaseRef!!.child("Users").child(phoneNumber).child("location").child("longitude").setValue(myLocation!!.longitude)
-                databaseRef!!.child("Users").child(phoneNumber).child("location").child("lastOnline").setValue(df.format(date).toString())
-
-
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
-
-        })
+       if(!MyService.isServiceRunning){
+           val intent = Intent(baseContext,MyService::class.java)
+           startService(intent)
+       }
 
 
     }
@@ -277,7 +255,6 @@ class MainActivity : AppCompatActivity() {
             myLocation = Location("me")
             myLocation!!.longitude = 0.0
             myLocation!!.latitude = 0.0
-            isAccessLocation = true
         }
         override fun onLocationChanged(location: Location) {
             myLocation = location
