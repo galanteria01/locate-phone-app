@@ -105,6 +105,7 @@ class MainActivity : AppCompatActivity() {
 
     }
     val CONTACT_CODE = 123
+    val LOCATION_CODE = 234
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when(requestCode){
@@ -121,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                     getUserLocation()
                 }
                 else{
-                    Toast.makeText(this,"Contacts permission denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"Location permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -237,7 +238,7 @@ class MainActivity : AppCompatActivity() {
         loadContact()
 
     }
-    val LOCATION_CODE = 234
+
 
     @SuppressLint("MissingPermission")
     fun getUserLocation(){
@@ -249,17 +250,4 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    var myLocation:Location?=null
-    inner class MyLocationListener: LocationListener {
-        constructor():super(){
-            myLocation = Location("me")
-            myLocation!!.longitude = 0.0
-            myLocation!!.latitude = 0.0
-        }
-        override fun onLocationChanged(location: Location) {
-            myLocation = location
-
-        }
-
-    }
 }

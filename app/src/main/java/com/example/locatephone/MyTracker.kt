@@ -25,7 +25,6 @@ class MyTracker : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_tracker)
-        dummyData()
         adapter = contactAdapter(this,listOfContact)
         lvContacts.adapter = adapter
         lvContacts.onItemClickListener= AdapterView.OnItemClickListener{
